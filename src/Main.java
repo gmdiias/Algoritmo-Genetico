@@ -1,11 +1,12 @@
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.LineNumberInputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
-public class Main {
+class Main {
 
 	private int numLinhas;
 	private int numColunas;
@@ -15,7 +16,7 @@ public class Main {
 		Main main = new Main();
 		
 		main.lerArquivo();
-		//main.printDadosObtidos();
+		main.printDadosObtidos();
 
 	}
 	
@@ -36,10 +37,11 @@ public class Main {
             while((linha = reader.readLine()) != null ){
             	Dados dado = new Dados();
             	String[] texto = linha.split("\\s+");
-            	dado.indice = li
+            	dado.indice = Integer.parseInt(texto[1]);
+            	dado.peso = Double.parseDouble(texto[2]);
             	for(int i = 3; i < texto.length; i++) {
             		texto[i] = texto[i].replaceAll(" ", "");
-            		System.out.println(Double.parseDouble(texto[i]));
+            		dado.linhasCobertas.add(Integer.parseInt(texto[i]));
             	}
             	listDados.add(dado);
             }
@@ -53,14 +55,14 @@ public class Main {
 	public void printDadosObtidos() {
 		System.out.println(numLinhas);
 		System.out.println(numColunas);
-		listDados.forEach(listDados->System.out.println(listDados.linhas));
+		listDados.forEach(dado -> System.out.println(dado.indice + " " + dado.peso + " " + dado.linhasCobertas.toString()));
 	}
 	
 	static class Dados {
 		private int indice;
-		private float peso;
+		private double peso;
 		ArrayList<String> linhas;
-		private ArrayList<int[]> linhasCobertas;
+		private List<Integer> linhasCobertas = new ArrayList<>();
 		
 		public int getIndice() {
 			return indice;
@@ -68,17 +70,17 @@ public class Main {
 		public void setIndice(int indice) {
 			this.indice = indice;
 		}
-		public float getPeso() {
+		public double getPeso() {
 			return peso;
 		}
-		public void setPeso(float peso) {
+		public void setPeso(double peso) {
 			this.peso = peso;
 		}
-		public ArrayList<int[]> getLinhasCobertas() {
-			return linhasCobertas;
-		}
-		public void setLinhasCobertas(ArrayList<int[]> linhasCobertas) {
-			this.linhasCobertas = linhasCobertas;
-		}
+//		public ArrayList<int[]> getLinhasCobertas() {
+//			return linhasCobertas;
+//		}
+//		public void setLinhasCobertas(ArrayList<int[]> linhasCobertas) {
+//			this.linhasCobertas = linhasCobertas;
+//		}
 	}
 }
