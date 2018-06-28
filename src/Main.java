@@ -3,7 +3,10 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.LineNumberInputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Scanner;
 
 class Main {
@@ -17,13 +20,13 @@ class Main {
 		
 		main.lerArquivo();
 		main.printDadosObtidos();
-
+		main.geraInicial();
 	}
 	
 	public void lerArquivo() {
 		BufferedReader br;
 		try {
-			FileReader ler = new FileReader("C:\\Users\\gmdii\\Documents\\workspace-sts-3.9.4.RELEASE\\Algoritmo Genetico\\src\\entrada.txt");
+			FileReader ler = new FileReader("./src/entrada.txt");
             BufferedReader reader = new BufferedReader(ler);  
             String linha;
             linha = reader.readLine();
@@ -58,10 +61,25 @@ class Main {
 		listDados.forEach(dado -> System.out.println(dado.indice + " " + dado.peso + " " + dado.linhasCobertas.toString()));
 	}
 	
+	public void geraInicial() {
+		int colunasAnalizadas = 0;
+		HashSet<Integer> linhasCobertas = new HashSet<>();
+		Double pesoTotal = new Double(0);
+		
+		while((linhasCobertas.size() < numLinhas) && (colunasAnalizadas < 300)) {
+			Dados dadoAtual = listDados.get(colunasAnalizadas);
+			pesoTotal += dadoAtual.getPeso();
+			List<Integer> cobertura = dadoAtual.getLinhasCobertas();
+			linhasCobertas.addAll(cobertura);
+			colunasAnalizadas += 1;
+		}
+		
+		System.out.println(pesoTotal);
+	}
+	
 	static class Dados {
 		private int indice;
 		private double peso;
-		ArrayList<String> linhas;
 		private List<Integer> linhasCobertas = new ArrayList<>();
 		
 		public int getIndice() {
@@ -76,11 +94,11 @@ class Main {
 		public void setPeso(double peso) {
 			this.peso = peso;
 		}
-//		public ArrayList<int[]> getLinhasCobertas() {
-//			return linhasCobertas;
-//		}
-//		public void setLinhasCobertas(ArrayList<int[]> linhasCobertas) {
-//			this.linhasCobertas = linhasCobertas;
-//		}
+		public List<Integer> getLinhasCobertas() {
+			return linhasCobertas;
+		}
+		public void setLinhasCobertas(List<Integer> linhasCobertas) {
+			this.linhasCobertas = linhasCobertas;
+		}
 	}
 }
