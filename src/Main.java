@@ -1,19 +1,16 @@
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
-import java.io.LineNumberInputStream;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
-import java.util.Scanner;
 
 class Main {
 
 	private int numLinhas;
 	private int numColunas;
-	ArrayList<Dados> listDados = new ArrayList<>();
+	ArrayList<DadosColunas> listDados = new ArrayList<>();
+	ArrayList<DadosLinhas> listLinhas = new ArrayList<>();
 	
 	public static void main(String[] args) {
 		Main main = new Main();
@@ -37,14 +34,18 @@ class Main {
             numColunas = Integer.parseInt(linha.substring(8, linha.length()));
             linha = reader.readLine();
             
+            geraLista();
+            
             while((linha = reader.readLine()) != null ){
-            	Dados dado = new Dados();
+            	DadosColunas dado = new DadosColunas();
             	String[] texto = linha.split("\\s+");
             	dado.indice = Integer.parseInt(texto[1]);
             	dado.peso = Double.parseDouble(texto[2]);
             	for(int i = 3; i < texto.length; i++) {
             		texto[i] = texto[i].replaceAll(" ", "");
-            		dado.linhasCobertas.add(Integer.parseInt(texto[i]));
+            		int nLinha = Integer.parseInt(texto[i]);
+            		dado.linhasCobertas.add(nLinha);
+            		listLinhas.get(nLinha-1).listaDados.add(dado);
             	}
             	listDados.add(dado);
             }
@@ -59,6 +60,18 @@ class Main {
 		System.out.println(numLinhas);
 		System.out.println(numColunas);
 		listDados.forEach(dado -> System.out.println(dado.indice + " " + dado.peso + " " + dado.linhasCobertas.toString()));
+		
+		listLinhas.forEach(linha -> System.out.println(linha.linha + " " + linha.listaDados.size()));
+		
+	}
+	
+	public void geraLista() {
+		for(int i = 0; i < numLinhas; i++) {
+			DadosLinhas linhas = new DadosLinhas();
+			linhas.setLinha(i);
+			listLinhas.add(linhas);
+		}
+		listLinhas.size();
 	}
 	
 	public void geraInicial() {
@@ -67,7 +80,7 @@ class Main {
 		Double pesoTotal = new Double(0);
 		
 		while((linhasCobertas.size() < numLinhas) && (colunasAnalizadas < 300)) {
-			Dados dadoAtual = listDados.get(colunasAnalizadas);
+			DadosColunas dadoAtual = listDados.get(colunasAnalizadas);
 			pesoTotal += dadoAtual.getPeso();
 			List<Integer> cobertura = dadoAtual.getLinhasCobertas();
 			linhasCobertas.addAll(cobertura);
@@ -77,7 +90,30 @@ class Main {
 		System.out.println(pesoTotal);
 	}
 	
-	static class Dados {
+	public void gerarLinhas() {
+		
+	}
+	
+	static class DadosLinhas {
+		private int linha;
+		private List<DadosColunas> listaDados = new ArrayList<>();
+		
+		public int getLinha() {
+			return linha;
+		}
+		public void setLinha(int linha) {
+			this.linha = linha;
+		}
+		public List<DadosColunas> getListaDados() {
+			return listaDados;
+		}
+		public void setListaDados(List<DadosColunas> listaDados) {
+			this.listaDados = listaDados;
+		}
+		
+	}
+	
+	static class DadosColunas {
 		private int indice;
 		private double peso;
 		private List<Integer> linhasCobertas = new ArrayList<>();
