@@ -2,8 +2,10 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Random;
 
 class Main {
 
@@ -17,7 +19,8 @@ class Main {
 		
 		main.lerArquivo();
 		main.printDadosObtidos();
-		main.geraInicial();
+		//main.geraInicial();
+		main.gerarIndividuo();
 	}
 	
 	public void lerArquivo() {
@@ -90,7 +93,59 @@ class Main {
 		System.out.println(pesoTotal);
 	}
 	
-	public void gerarLinhas() {
+	public void gerarIndividuo() {
+		List<Integer> s = new ArrayList<>();
+		HashMap<Integer, Integer> u = inicializaU();
+		int w = 0;
+		Random gerador = new Random();
+		while (!u.isEmpty()) {
+			Integer linha;
+			do {
+				linha = u.get(gerador.nextInt(numLinhas));
+			} while(linha == null);
+			double peso = 999;
+			DadosColunas selecionado = new DadosColunas(); 
+			for(DadosColunas dado : listLinhas.get(linha-1).listaDados) {
+				double pesoColuna = dado.getPeso()/dado.getLinhasCobertas().size();
+				if(pesoColuna < peso) {
+					peso = pesoColuna;
+					selecionado = dado;
+				}
+			}
+			s.add(selecionado.getIndice());
+			for(int teste : selecionado.getLinhasCobertas()) {
+				w++;
+				u.remove(teste);
+				
+			}			
+		}
+		System.out.println(s.toString());
+	}
+	
+	public HashMap<Integer, Integer> inicializaU() {
+		HashMap<Integer, Integer> u = new HashMap<>(); 
+		for(int i = 1; i <= numLinhas; i++) {
+			u.put(i, new Integer(i));
+		}
+		return u;
+	}
+	
+	static class Individuo {
+		private int linha;
+		private double peso;
+		
+		public int getLinha() {
+			return linha;
+		}
+		public void setLinha(int linha) {
+			this.linha = linha;
+		}
+		public double getPeso() {
+			return peso;
+		}
+		public void setPeso(double peso) {
+			this.peso = peso;
+		}
 		
 	}
 	
