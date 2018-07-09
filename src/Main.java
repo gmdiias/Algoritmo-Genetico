@@ -19,8 +19,11 @@ class Main {
 		
 		main.lerArquivo();
 		main.printDadosObtidos();
-		//main.geraInicial();
-		main.gerarIndividuo();
+		
+		List<Individuo> listIndividuo = main.geraPopulacaoInicial();
+		
+		listIndividuo.forEach(dado -> System.out.println("Peso: " + dado.getPeso() + " Colunas: " + dado.getColunas().toString()));
+		
 	}
 	
 	public void lerArquivo() {
@@ -77,7 +80,7 @@ class Main {
 		listLinhas.size();
 	}
 	
-	public void geraInicial() {
+	public void gerarInicial() {
 		int colunasAnalizadas = 0;
 		HashSet<Integer> linhasCobertas = new HashSet<>();
 		Double pesoTotal = new Double(0);
@@ -93,7 +96,7 @@ class Main {
 		System.out.println(pesoTotal);
 	}
 	
-	public void gerarIndividuo() {
+	public Individuo gerarIndividuo() {
 		List<Integer> s = new ArrayList<>();
 		HashMap<Integer, Integer> u = inicializaU();
 		int w = 0;
@@ -119,7 +122,25 @@ class Main {
 				
 			}			
 		}
-		System.out.println(s.toString());
+		Individuo individuo = new Individuo();
+		double pesoTotal = 0;
+		for(int teste : s) {
+			pesoTotal += listDados.get(teste-1).getPeso();
+			individuo.colunas.add(listDados.get(teste-1));
+		}
+		individuo.setPeso(pesoTotal);
+
+		return individuo;
+	}
+	
+	public List<Individuo> geraPopulacaoInicial(){
+		List<Individuo> pop = new ArrayList<>();
+		do {
+			Individuo individuo = gerarIndividuo();
+			pop.add(individuo);
+		} while (pop.size() < 100);
+		
+		return pop;
 	}
 	
 	public HashMap<Integer, Integer> inicializaU() {
@@ -131,20 +152,20 @@ class Main {
 	}
 	
 	static class Individuo {
-		private int linha;
 		private double peso;
+		private List<DadosColunas> colunas = new ArrayList<>();
 		
-		public int getLinha() {
-			return linha;
-		}
-		public void setLinha(int linha) {
-			this.linha = linha;
-		}
 		public double getPeso() {
 			return peso;
 		}
 		public void setPeso(double peso) {
 			this.peso = peso;
+		}
+		public List<DadosColunas> getColunas() {
+			return colunas;
+		}
+		public void setColunas(List<DadosColunas> colunas) {
+			this.colunas = colunas;
 		}
 		
 	}
@@ -190,6 +211,9 @@ class Main {
 		}
 		public void setLinhasCobertas(List<Integer> linhasCobertas) {
 			this.linhasCobertas = linhasCobertas;
+		}
+		public String toString() {
+			return "(" + peso + " " + linhasCobertas.toString() + ")";
 		}
 	}
 }
