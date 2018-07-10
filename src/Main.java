@@ -106,14 +106,14 @@ class Main {
 		while (!u.isEmpty()) {
 			Integer linha;
 			do {
-				linha = u.get(gerador.nextInt(numLinhas));
+				linha = u.get(gerador.nextInt(numLinhas+1));
 			} while (linha == null);
 			double peso = 999;
 			DadosColunas selecionado = new DadosColunas();
 			for (DadosColunas dado : listLinhas.get(linha - 1).listaDados) {
 				int dividendo = verificaIntersecao(dado.getLinhasCobertas(), u);
 				double pesoColuna = dado.getPeso() / dividendo;
-				if (pesoColuna < peso) {
+				if (pesoColuna <= peso) {
 					peso = pesoColuna;
 					selecionado = dado;
 				}
@@ -124,6 +124,7 @@ class Main {
 				u.remove(teste);
 
 			}
+			
 		}
 		Individuo individuo = new Individuo();
 		double pesoTotal = 0;
@@ -154,7 +155,7 @@ class Main {
 		do {
 			Individuo individuo = gerarIndividuo();
 			pop.add(individuo);
-		} while (pop.size() < 10);
+		} while (pop.size() < 100);
 
 		return pop;
 	}
