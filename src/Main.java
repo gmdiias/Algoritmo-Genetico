@@ -2,6 +2,7 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -21,6 +22,8 @@ class Main {
 		main.printDadosObtidos();
 
 		List<Individuo> listIndividuo = main.geraPopulacaoInicial();
+		
+		Collections.sort(listIndividuo);
 
 		listIndividuo.forEach(
 				dado -> System.out.println("Peso: " + dado.getPeso() + " Colunas: " + dado.getColunas().toString()));
@@ -122,7 +125,6 @@ class Main {
 			for (int teste : selecionado.getLinhasCobertas()) {
 				w++;
 				u.remove(teste);
-
 			}
 			
 		}
@@ -133,7 +135,32 @@ class Main {
 			individuo.colunas.add(listDados.get(teste - 1));
 		}
 		individuo.setPeso(pesoTotal);
-
+		//individuo = eliminaRedundancia(individuo);
+		return individuo;
+	}
+	
+	public Individuo eliminaRedundancia(Individuo individuo) {
+		Individuo novo = new Individuo();
+		novo.clonarIndividuo(individuo);
+		List<DadosColunas> s = novo.getColunas();
+		HashMap<Integer, Integer> u = inicializaU();
+		Random gerador = new Random();
+		DadosColunas dado;
+		do {
+			do {
+				dado = s.get(gerador.nextInt(s.size()));
+			} while (dado == null);
+			int contador = 0;
+			for(int teste : dado.getLinhasCobertas()) {
+				if(u.remove(teste) != null) {
+					contador++;
+				}
+			}
+			if(contador != 0) {
+				s.remove(dado);
+			}
+		} while(!u.isEmpty());
+		
 		return individuo;
 	}
 
@@ -168,7 +195,7 @@ class Main {
 		return u;
 	}
 
-	static class Individuo {
+	static class Individuo implements Comparable<Individuo> {
 		private double peso;
 		private List<DadosColunas> colunas = new ArrayList<>();
 
@@ -188,6 +215,21 @@ class Main {
 			this.colunas = colunas;
 		}
 
+		@Override
+		public int compareTo(Individuo arg0) {
+			 if (this.peso > arg0.getPeso()) {
+		          return 1;
+		     }
+		     if (this.peso < arg0.getPeso()) {
+		          return -1;
+		     }
+		     return 0;
+		}
+		
+		public void clonarIndividuo(Individuo antigo) {
+			this.peso = antigo.getPeso();
+			this.colunas = antigo.getColunas();
+		}
 	}
 
 	static class DadosLinhas {
@@ -245,4 +287,6 @@ class Main {
 			return "(" + peso + " " + linhasCobertas.toString() + ")";
 		}
 	}
+	
+
 }
