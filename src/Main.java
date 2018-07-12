@@ -25,15 +25,17 @@ class Main {
 		
 		Collections.sort(listIndividuo);
 
-		listIndividuo.forEach(
-				dado -> System.out.println("Peso: " + dado.getPeso() + " Colunas: " + dado.getColunas().toString()));
+//		listIndividuo.forEach(
+//				dado -> System.out.println("Peso: " + dado.getPeso() + " Colunas: " + dado.getColunas().toString()));
+		
+		System.out.println("Melhor: " + listIndividuo.get(0).getPeso() + " Colunas: " + listIndividuo.get(0).getColunas());
 
 	}
 
 	public void lerArquivo() {
 		BufferedReader br;
 		try {
-			FileReader ler = new FileReader("./src/entrada.txt");
+			FileReader ler = new FileReader("./src/entrada6.txt");
 			BufferedReader reader = new BufferedReader(ler);
 			String linha;
 			linha = reader.readLine();
@@ -128,6 +130,30 @@ class Main {
 			}
 			
 		}
+		Individuo individuo = eliminaRedundancia(s);
+		return individuo;
+	}
+	
+	public Individuo eliminaRedundancia(List<Integer> s) {
+		List<DadosColunas> listaColunas = new ArrayList<>();
+		for (int teste : s) {
+			listaColunas.add(listDados.get(teste - 1));
+		}
+		HashMap<Integer, Integer> u = inicializaU();
+		Random gerador = new Random();
+		DadosColunas dado;
+		int cont = 0; 
+		do {
+			do {
+				dado = listaColunas.get(gerador.nextInt(s.size()));
+			} while (dado == null);
+			s.remove(dado);
+			if(!verificaIndividuo(listaColunas)) {
+				listaColunas.add(dado);
+			}
+			cont ++;
+		} while(!u.isEmpty() && cont < 10);
+		
 		Individuo individuo = new Individuo();
 		double pesoTotal = 0;
 		for (int teste : s) {
@@ -135,33 +161,22 @@ class Main {
 			individuo.colunas.add(listDados.get(teste - 1));
 		}
 		individuo.setPeso(pesoTotal);
-		//individuo = eliminaRedundancia(individuo);
+		
 		return individuo;
 	}
 	
-	public Individuo eliminaRedundancia(Individuo individuo) {
-		Individuo novo = new Individuo();
-		novo.clonarIndividuo(individuo);
-		List<DadosColunas> s = novo.getColunas();
-		HashMap<Integer, Integer> u = inicializaU();
-		Random gerador = new Random();
-		DadosColunas dado;
-		do {
-			do {
-				dado = s.get(gerador.nextInt(s.size()));
-			} while (dado == null);
-			int contador = 0;
-			for(int teste : dado.getLinhasCobertas()) {
-				if(u.remove(teste) != null) {
-					contador++;
-				}
-			}
-			if(contador != 0) {
-				s.remove(dado);
-			}
-		} while(!u.isEmpty());
+	public boolean verificaIndividuo(List<DadosColunas> cobertura) {
+		HashSet<Integer> linhasCobertas = new HashSet<>();
 		
-		return individuo;
+		for(DadosColunas dados : cobertura) {
+			dados.linhasCobertas.forEach(dado -> linhasCobertas.add(dado));
+		}
+		
+		if(linhasCobertas.size() == 50) {
+			return true;
+		}
+		
+		return false;
 	}
 
 	public int verificaIntersecao(List<Integer> linhasCobertas, HashMap<Integer, Integer> linhasDescobertas) {
@@ -182,7 +197,7 @@ class Main {
 		do {
 			Individuo individuo = gerarIndividuo();
 			pop.add(individuo);
-		} while (pop.size() < 100);
+		} while (pop.size() < 10000);
 
 		return pop;
 	}
