@@ -24,10 +24,11 @@ class Main {
 		List<Individuo> listIndividuo = main.geraPopulacaoInicial();
 		
 		Collections.sort(listIndividuo);
-
-//		listIndividuo.forEach(
-//				dado -> System.out.println("Peso: " + dado.getPeso() + " Colunas: " + dado.getColunas().toString()));
 		
+		listIndividuo.forEach(dado -> pesoT += dado.getPeso());
+		
+		
+		System.out.println(pesoT);
 		System.out.println("Melhor: " + listIndividuo.get(0).getPeso() + " Colunas: " + listIndividuo.get(0).getColunas());
 
 	}
@@ -172,7 +173,7 @@ class Main {
 			dados.linhasCobertas.forEach(dado -> linhasCobertas.add(dado));
 		}
 		
-		if(linhasCobertas.size() == 50) {
+		if(linhasCobertas.size() == numLinhas) {
 			return true;
 		}
 		
