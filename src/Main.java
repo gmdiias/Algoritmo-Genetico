@@ -25,10 +25,6 @@ class Main {
 		
 		Collections.sort(listIndividuo);
 		
-		listIndividuo.forEach(dado -> pesoT += dado.getPeso());
-		
-		
-		System.out.println(pesoT);
 		System.out.println("Melhor: " + listIndividuo.get(0).getPeso() + " Colunas: " + listIndividuo.get(0).getColunas());
 
 	}
@@ -140,27 +136,61 @@ class Main {
 		for (int teste : s) {
 			listaColunas.add(listDados.get(teste - 1));
 		}
+		
 		HashMap<Integer, Integer> u = inicializaU();
 		Random gerador = new Random();
 		DadosColunas dado;
 		int cont = 0; 
 		do {
 			do {
-				dado = listaColunas.get(gerador.nextInt(s.size()));
+				dado = listaColunas.get(gerador.nextInt(listaColunas.size()));
 			} while (dado == null);
-			s.remove(dado);
+			listaColunas.remove(dado);
 			if(!verificaIndividuo(listaColunas)) {
 				listaColunas.add(dado);
+				cont ++;
 			}
-			cont ++;
-		} while(!u.isEmpty() && cont < 10);
+			else {
+				cont = 0;
+			}
+		} while(!u.isEmpty() && cont < numLinhas);
 		
 		Individuo individuo = new Individuo();
 		double pesoTotal = 0;
-		for (int teste : s) {
-			pesoTotal += listDados.get(teste - 1).getPeso();
-			individuo.colunas.add(listDados.get(teste - 1));
+		for(DadosColunas dados : listaColunas) {
+			pesoTotal += dados.getPeso();
 		}
+		individuo.setColunas(listaColunas);
+		individuo.setPeso(pesoTotal);
+		
+		return individuo;
+	}
+	
+	public Individuo eliminaRedundancia2(List<DadosColunas> listaColunas) {		
+		HashMap<Integer, Integer> u = inicializaU();
+		Random gerador = new Random();
+		DadosColunas dado;
+		int cont = 0; 
+		do {
+			do {
+				dado = listaColunas.get(gerador.nextInt(listaColunas.size()));
+			} while (dado == null);
+			listaColunas.remove(dado);
+			if(!verificaIndividuo(listaColunas)) {
+				listaColunas.add(dado);
+				cont ++;
+			}
+			else {
+				cont = 0;
+			}
+		} while(!u.isEmpty() && cont < numLinhas);
+		
+		Individuo individuo = new Individuo();
+		double pesoTotal = 0;
+		for(DadosColunas dados : listaColunas) {
+			pesoTotal += dados.getPeso();
+		}
+		individuo.setColunas(listaColunas);
 		individuo.setPeso(pesoTotal);
 		
 		return individuo;
@@ -192,14 +222,37 @@ class Main {
 		}
 		return contador;
 	}
+	
+	public Individuo realizaCruzamento(List<DadosColunas> listaColunasIndividuoA,
+			List<DadosColunas> listaColunasIndividuoB) {
+		
+		List<DadosColunas> listaGerada = new ArrayList<>();
+		
+		listaGerada.addAll(listaColunasIndividuoA);
+		listaGerada.addAll(listaColunasIndividuoB);
+		
+		Individuo individuo = eliminaRedundancia2(listaGerada);
+		
+		return individuo;
+	}
 
 	public List<Individuo> geraPopulacaoInicial() {
+		Random gerador = new Random();
 		List<Individuo> pop = new ArrayList<>();
 		do {
 			Individuo individuo = gerarIndividuo();
 			pop.add(individuo);
 		} while (pop.size() < 10000);
-
+		
+		Collections.sort(pop);
+		
+		List<Individuo> popCruzamento = new ArrayList<>();
+		do{
+			popCruzamento.add(realizaCruzamento(pop.get(gerador.nextInt(10000/100)).getColunas(), pop.get(gerador.nextInt(10000/100)).getColunas()));
+		} while (popCruzamento.size() < 10000);
+		
+		Collections.sort(popCruzamento);
+		
 		return pop;
 	}
 
