@@ -14,6 +14,7 @@ class Main {
 	private int numColunas;
 	ArrayList<DadosColunas> listDados = new ArrayList<>();
 	ArrayList<DadosLinhas> listLinhas = new ArrayList<>();
+	Random gerador = new Random();
 
 	public static void main(String[] args) {
 		Main main = new Main();
@@ -104,7 +105,6 @@ class Main {
 		List<Integer> s = new ArrayList<>();
 		HashMap<Integer, Integer> u = inicializaU();
 		int w = 0;
-		Random gerador = new Random();
 		while (!u.isEmpty()) {
 			Integer linha;
 			do {
@@ -168,7 +168,6 @@ class Main {
 	
 	public Individuo eliminaRedundancia2(List<DadosColunas> listaColunas) {		
 		HashMap<Integer, Integer> u = inicializaU();
-		Random gerador = new Random();
 		DadosColunas dado;
 		int cont = 0; 
 		do {
@@ -182,6 +181,38 @@ class Main {
 			}
 			else {
 				cont = 0;
+			}
+		} while(!u.isEmpty() && cont < numLinhas);
+		
+		Individuo individuo = new Individuo();
+		double pesoTotal = 0;
+		for(DadosColunas dados : listaColunas) {
+			pesoTotal += dados.getPeso();
+		}
+		individuo.setColunas(listaColunas);
+		individuo.setPeso(pesoTotal);
+		
+		return individuo;
+	}
+	
+	public Individuo eliminaRedundancia3(List<DadosColunas> listaColunas) {		
+		HashMap<Integer, Integer> u = inicializaU();
+		DadosColunas dado;
+		int cont = 0; 
+		int i = listaColunas.size()-1;
+		do {
+			dado = listaColunas.get(i);
+			listaColunas.remove(dado);
+			if(!verificaIndividuo(listaColunas)) {
+				listaColunas.add(dado);
+				cont ++;
+			}
+			else {
+				cont = 0;
+			}
+			i--;
+			if(i < 1) {
+				i = 0;
 			}
 		} while(!u.isEmpty() && cont < numLinhas);
 		
@@ -235,9 +266,21 @@ class Main {
 		
 		return individuo;
 	}
+	
+	public Individuo realizaMutacao(List<DadosColunas> listaColunas) {
+		
+		List<DadosColunas> listaGerada = new ArrayList<>();
+		
+		listaGerada.addAll(listaColunas);
+		
+		listaGerada.add(listDados.get(gerador.nextInt(listDados.size())));
+		
+		Individuo individuo = eliminaRedundancia3(listaGerada);
+
+		return individuo;
+	}
 
 	public List<Individuo> geraPopulacaoInicial() {
-		Random gerador = new Random();
 		List<Individuo> pop = new ArrayList<>();
 		do {
 			Individuo individuo = gerarIndividuo();
@@ -252,6 +295,13 @@ class Main {
 		} while (popCruzamento.size() < 10000);
 		
 		Collections.sort(popCruzamento);
+		
+		List<Individuo> popMutacao = new ArrayList<>();
+		do {
+			popMutacao.add(realizaMutacao(popCruzamento.get(gerador.nextInt(10000)).getColunas()));
+		} while (popMutacao.size() < 2000);
+		
+		Collections.sort(popMutacao);
 		
 		return pop;
 	}
