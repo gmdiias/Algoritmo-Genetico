@@ -21,12 +21,13 @@ class Main {
 
 		main.lerArquivo();
 		main.printDadosObtidos();
+		main.algoritmoGenetico();
 
-		List<Individuo> listIndividuo = main.geraPopulacaoInicial();
-		
-		Collections.sort(listIndividuo);
-		
-		System.out.println("Melhor: " + listIndividuo.get(0).getPeso() + " Colunas: " + listIndividuo.get(0).getColunas());
+//		List<Individuo> listIndividuo = main.geraPopulacaoInicial();
+//		
+//		Collections.sort(listIndividuo);
+//		
+//		System.out.println("Melhor: " + listIndividuo.get(0).getPeso() + " Colunas: " + listIndividuo.get(0).getColunas());
 
 	}
 
@@ -128,7 +129,14 @@ class Main {
 			
 		}
 		Individuo individuo = eliminaRedundancia(s);
-		return individuo;
+		Individuo dois = eliminaRedundancia3(individuo.getColunas());
+		
+		if(individuo.getPeso() != dois.getPeso()) {
+			System.out.println("Peguei INICIO");
+			System.out.println(individuo.getPeso() + " " + dois.getPeso());
+		}
+
+		return dois;
 	}
 	
 	public Individuo eliminaRedundancia(List<Integer> s) {
@@ -263,8 +271,14 @@ class Main {
 		listaGerada.addAll(listaColunasIndividuoB);
 		
 		Individuo individuo = eliminaRedundancia2(listaGerada);
+		Individuo dois = eliminaRedundancia3(individuo.getColunas());
 		
-		return individuo;
+		if(individuo.getPeso() != dois.getPeso()) {
+			System.out.println("Peguei Aqui");
+			System.out.println(individuo.getPeso() + " " + dois.getPeso());
+		}
+		
+		return dois;
 	}
 	
 	public Individuo realizaMutacao(List<DadosColunas> listaColunas) {
@@ -273,11 +287,19 @@ class Main {
 		
 		listaGerada.addAll(listaColunas);
 		
-		listaGerada.add(listDados.get(gerador.nextInt(listDados.size())));
+		for(int i = 0; i < listaColunas.size()/2; i++) {
+			listaGerada.add(listDados.get(gerador.nextInt(listDados.size())));
+		}
 		
-		Individuo individuo = eliminaRedundancia3(listaGerada);
+		Individuo individuo = eliminaRedundancia2(listaGerada);
+		Individuo dois = eliminaRedundancia3(individuo.getColunas());
+		
+		if(individuo.getPeso() != dois.getPeso()) {
+			System.out.println("Peguei");
+			System.out.println(individuo.getPeso() + " " + dois.getPeso());
+		}
 
-		return individuo;
+		return dois;
 	}
 
 	public List<Individuo> geraPopulacaoInicial() {
@@ -289,21 +311,39 @@ class Main {
 		
 		Collections.sort(pop);
 		
-		List<Individuo> popCruzamento = new ArrayList<>();
-		do{
-			popCruzamento.add(realizaCruzamento(pop.get(gerador.nextInt(10000/100)).getColunas(), pop.get(gerador.nextInt(10000/100)).getColunas()));
-		} while (popCruzamento.size() < 10000);
-		
-		Collections.sort(popCruzamento);
-		
-		List<Individuo> popMutacao = new ArrayList<>();
-		do {
-			popMutacao.add(realizaMutacao(popCruzamento.get(gerador.nextInt(10000)).getColunas()));
-		} while (popMutacao.size() < 2000);
-		
-		Collections.sort(popMutacao);
-		
 		return pop;
+	}
+	
+	public void algoritmoGenetico() {
+		List<Individuo> pop = geraPopulacaoInicial();
+		int t = 0;
+		do {
+			boolean modificado = false;
+			Individuo novo = realizaCruzamento(pop.get(gerador.nextInt(10000/50)).getColunas(), pop.get(gerador.nextInt(10000/50)).getColunas());
+			if(gerador.nextInt(100) < 35) {
+				novo = realizaMutacao(novo.getColunas());
+			}
+			
+			Individuo r = pop.get(pop.size()-1);
+			
+			if(novo.getPeso() < r.getPeso()) {
+				pop.remove(r);
+				pop.add(novo);
+				modificado = true;
+				Collections.sort(pop);
+			}
+			
+			if(modificado) {
+				t = 0;
+			}
+			else {
+				t++;
+			}
+				
+		} while (t < 1000);
+	
+		System.out.println(pop.get(0).getPeso());
+		System.out.println(pop.get(0).getColunas());
 	}
 
 	public HashMap<Integer, Integer> inicializaU() {
