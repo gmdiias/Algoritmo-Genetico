@@ -34,7 +34,7 @@ class Main {
 	public void lerArquivo() {
 		BufferedReader br;
 		try {
-			FileReader ler = new FileReader("./src/entrada6.txt");
+			FileReader ler = new FileReader("./src/entrada5.txt");
 			BufferedReader reader = new BufferedReader(ler);
 			String linha;
 			linha = reader.readLine();
@@ -307,7 +307,7 @@ class Main {
 		do {
 			Individuo individuo = gerarIndividuo();
 			pop.add(individuo);
-		} while (pop.size() < 10000);
+		} while (pop.size() < 2000);
 		
 		Collections.sort(pop);
 		
@@ -319,7 +319,8 @@ class Main {
 		int t = 0;
 		do {
 			boolean modificado = false;
-			Individuo novo = realizaCruzamento(pop.get(gerador.nextInt(10000/50)).getColunas(), pop.get(gerador.nextInt(10000/50)).getColunas());
+			Individuo novo = realizaCruzamento(pop.get(gerador.nextInt(pop.size()/3)).getColunas(),
+					pop.get(gerador.nextInt(pop.size()/3)).getColunas());
 			if(gerador.nextInt(100) < 35) {
 				novo = realizaMutacao(novo.getColunas());
 			}
