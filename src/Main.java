@@ -7,34 +7,44 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
+import java.util.Scanner;
 
 class Main {
 
 	private int numLinhas;
 	private int numColunas;
+	private int tamanhoPopulacao;
+	private int taxaMutacao;
+	private int condParada;
+	private int qtdNovidade;
 	ArrayList<DadosColunas> listDados = new ArrayList<>();
 	ArrayList<DadosLinhas> listLinhas = new ArrayList<>();
 	Random gerador = new Random();
 
 	public static void main(String[] args) {
+		Scanner leitor = new Scanner(System.in);
 		Main main = new Main();
 
+		System.out.println("-----------------------------------------------------------------");
+		System.out.println("Algoritmo Genético para o Problema de Cobertura de Conjuntos");
+		System.out.println("-----------------------------------------------------------------");
+		System.out.print("Qual a quantidade de população desejada: ");
+		main.tamanhoPopulacao = leitor.nextInt();
+		System.out.print("Informe a taxa de mutação desejada em porcentagem (0 a 100): ");
+		main.taxaMutacao = leitor.nextInt();
+		System.out.print("Informe a condição de parada: ");
+		main.condParada = leitor.nextInt();
+		System.out.println("-----------------------------------------------------------------");
+		
 		main.lerArquivo();
-		main.printDadosObtidos();
 		main.algoritmoGenetico();
-
-//		List<Individuo> listIndividuo = main.geraPopulacaoInicial();
-//		
-//		Collections.sort(listIndividuo);
-//		
-//		System.out.println("Melhor: " + listIndividuo.get(0).getPeso() + " Colunas: " + listIndividuo.get(0).getColunas());
 
 	}
 
 	public void lerArquivo() {
 		BufferedReader br;
 		try {
-			FileReader ler = new FileReader("./src/entrada5.txt");
+			FileReader ler = new FileReader("./src/entrada6.txt");
 			BufferedReader reader = new BufferedReader(ler);
 			String linha;
 			linha = reader.readLine();
@@ -67,16 +77,6 @@ class Main {
 		}
 	}
 
-	public void printDadosObtidos() {
-		System.out.println(numLinhas);
-		System.out.println(numColunas);
-		listDados.forEach(
-				dado -> System.out.println(dado.indice + " " + dado.peso + " " + dado.linhasCobertas.toString()));
-
-		listLinhas.forEach(linha -> System.out.println(linha.linha + " " + linha.listaDados.size()));
-
-	}
-
 	public void geraLista() {
 		for (int i = 0; i < numLinhas; i++) {
 			DadosLinhas linhas = new DadosLinhas();
@@ -84,22 +84,6 @@ class Main {
 			listLinhas.add(linhas);
 		}
 		listLinhas.size();
-	}
-
-	public void gerarInicial() {
-		int colunasAnalizadas = 0;
-		HashSet<Integer> linhasCobertas = new HashSet<>();
-		Double pesoTotal = new Double(0);
-
-		while ((linhasCobertas.size() < numLinhas) && (colunasAnalizadas < 300)) {
-			DadosColunas dadoAtual = listDados.get(colunasAnalizadas);
-			pesoTotal += dadoAtual.getPeso();
-			List<Integer> cobertura = dadoAtual.getLinhasCobertas();
-			linhasCobertas.addAll(cobertura);
-			colunasAnalizadas += 1;
-		}
-
-		System.out.println(pesoTotal);
 	}
 
 	public Individuo gerarIndividuo() {
@@ -132,8 +116,9 @@ class Main {
 		Individuo dois = eliminaRedundancia3(individuo.getColunas());
 		
 		if(individuo.getPeso() != dois.getPeso()) {
-			System.out.println("Peguei INICIO");
-			System.out.println(individuo.getPeso() + " " + dois.getPeso());
+			qtdNovidade++;
+			//System.out.println("Peguei INICIO");
+			//System.out.println(individuo.getPeso() + " " + dois.getPeso());
 		}
 
 		return dois;
@@ -274,8 +259,9 @@ class Main {
 		Individuo dois = eliminaRedundancia3(individuo.getColunas());
 		
 		if(individuo.getPeso() != dois.getPeso()) {
-			System.out.println("Peguei Aqui");
-			System.out.println(individuo.getPeso() + " " + dois.getPeso());
+			qtdNovidade++;
+			//System.out.println("Peguei Aqui");
+			//System.out.println(individuo.getPeso() + " " + dois.getPeso());
 		}
 		
 		return dois;
@@ -295,8 +281,9 @@ class Main {
 		Individuo dois = eliminaRedundancia3(individuo.getColunas());
 		
 		if(individuo.getPeso() != dois.getPeso()) {
-			System.out.println("Peguei");
-			System.out.println(individuo.getPeso() + " " + dois.getPeso());
+			qtdNovidade++;
+			//System.out.println("Peguei");
+			//System.out.println(individuo.getPeso() + " " + dois.getPeso());
 		}
 
 		return dois;
@@ -304,10 +291,11 @@ class Main {
 
 	public List<Individuo> geraPopulacaoInicial() {
 		List<Individuo> pop = new ArrayList<>();
+		System.out.println("Gerando População Inicial com " + tamanhoPopulacao + " indíviduos -> Aguarde ...");
 		do {
 			Individuo individuo = gerarIndividuo();
 			pop.add(individuo);
-		} while (pop.size() < 2000);
+		} while (pop.size() < tamanhoPopulacao);
 		
 		Collections.sort(pop);
 		
@@ -317,19 +305,26 @@ class Main {
 	public void algoritmoGenetico() {
 		List<Individuo> pop = geraPopulacaoInicial();
 		int t = 0;
+		int contadorExecucao = 0;
+		System.out.println("Iniciando Execução do Algorítmo Genético -> Aguarde ...");
 		do {
 			boolean modificado = false;
-			Individuo novo = realizaCruzamento(pop.get(gerador.nextInt(pop.size()/3)).getColunas(),
+			Individuo novoIndividuo = realizaCruzamento(pop.get(gerador.nextInt(pop.size()/3)).getColunas(),
 					pop.get(gerador.nextInt(pop.size()/3)).getColunas());
-			if(gerador.nextInt(100) < 35) {
-				novo = realizaMutacao(novo.getColunas());
+			if(gerador.nextInt(100) < taxaMutacao) {
+				novoIndividuo = realizaMutacao(novoIndividuo.getColunas());
 			}
 			
-			Individuo r = pop.get(pop.size()-1);
+			Individuo piorIndividuo = pop.get(pop.size()-1);
 			
-			if(novo.getPeso() < r.getPeso()) {
-				pop.remove(r);
-				pop.add(novo);
+			if(novoIndividuo.getPeso() < piorIndividuo.getPeso()) {
+				Individuo melhorIndividuo = pop.get(0);
+				if(novoIndividuo.getPeso() < melhorIndividuo.getPeso()){
+					System.out.println("Nova melhor solução encontrada -> Peso: " + novoIndividuo.getPeso() +
+							" Peso antiga: " + melhorIndividuo.getPeso());
+				}
+				pop.remove(piorIndividuo);
+				pop.add(novoIndividuo);
 				modificado = true;
 				Collections.sort(pop);
 			}
@@ -340,11 +335,22 @@ class Main {
 			else {
 				t++;
 			}
+			
+			contadorExecucao++;
+			
+			if(contadorExecucao%500 == 0) {
+				System.out.println("Executando Algoritmo Genético -> " + contadorExecucao + " Operações realizadas ...");
+			}
 				
-		} while (t < 1000);
+		} while (t < condParada);
 	
-		System.out.println(pop.get(0).getPeso());
-		System.out.println(pop.get(0).getColunas());
+		System.out.println("-----------------------------------------------------------------");
+		System.out.println("O Algoritmo Genetico foi executado " + condParada + " vezes sem nenhuma melhora ...");
+		System.out.println("- Solução encontrada: " + pop.get(0).getPeso());
+		System.out.println("- Parametros utilizados nesta execução: Tamanho População: " + tamanhoPopulacao +
+				" Taxa de Mutação: " + taxaMutacao + " Condição de parada: " + condParada);
+		System.out.println("- Colunas Participantes da solução: " + pop.get(0).getColunas());
+		System.out.println("- Nossa melhoria no algoritmo de eliminar redundancia ajudou a melhorar " + qtdNovidade + " individuos durante essa execução.");
 	}
 
 	public HashMap<Integer, Integer> inicializaU() {
