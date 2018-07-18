@@ -17,6 +17,8 @@ class Main {
 	private int taxaMutacao;
 	private int condParada;
 	private int qtdNovidade;
+	private int qtdBuscaLocal;
+	private boolean utilizarBuscaLocal;
 	ArrayList<DadosColunas> listDados = new ArrayList<>();
 	ArrayList<DadosLinhas> listLinhas = new ArrayList<>();
 	Random gerador = new Random();
@@ -34,6 +36,18 @@ class Main {
 		main.taxaMutacao = leitor.nextInt();
 		System.out.print("Informe a condição de parada: ");
 		main.condParada = leitor.nextInt();
+		System.out.print("Deseja utilizar a Busca Local ?? (0-Não/1-Sim): ");
+		int response = leitor.nextInt();
+		
+		if(response == 0) {
+			main.utilizarBuscaLocal = false;
+		}
+		else {
+			main.utilizarBuscaLocal = true;
+			System.out.print("Qual a quantidade de Busca Local realizar: ");
+			main.qtdBuscaLocal = leitor.nextInt();
+		}
+		
 		System.out.println("-----------------------------------------------------------------");
 		
 		main.lerArquivo();
@@ -288,6 +302,31 @@ class Main {
 
 		return dois;
 	}
+	
+	public Individuo realizaMutacao2(List<DadosColunas> listaColunas) {
+		
+		List<DadosColunas> listaGerada = new ArrayList<>();
+		
+		listaGerada.addAll(listaColunas);
+		
+		listaGerada.add(listDados.get(gerador.nextInt(listDados.size())));
+		
+		Individuo individuo = eliminaRedundancia2(listaGerada);
+
+		return individuo;
+	}
+	
+	public Individuo realizaBuscaLocal(List<DadosColunas> listaColunas, double peso) {
+		for(int i = 0; i < qtdBuscaLocal; i++) {
+			Individuo novo = realizaMutacao2(listaColunas);
+			
+			if(novo.getPeso() < peso) {
+				return novo;
+			}
+		}
+		
+		return null;
+	}
 
 	public List<Individuo> geraPopulacaoInicial() {
 		List<Individuo> pop = new ArrayList<>();
@@ -315,12 +354,19 @@ class Main {
 				novoIndividuo = realizaMutacao(novoIndividuo.getColunas());
 			}
 			
+			if(utilizarBuscaLocal) {
+				Individuo buscaLocalIndividuo = realizaBuscaLocal(novoIndividuo.getColunas(), novoIndividuo.getPeso());
+				if(buscaLocalIndividuo != null && buscaLocalIndividuo.getPeso() < novoIndividuo.getPeso()) {
+					novoIndividuo = buscaLocalIndividuo;
+				}
+			}
+			
 			Individuo piorIndividuo = pop.get(pop.size()-1);
 			
 			if(novoIndividuo.getPeso() < piorIndividuo.getPeso()) {
 				Individuo melhorIndividuo = pop.get(0);
 				if(novoIndividuo.getPeso() < melhorIndividuo.getPeso()){
-					System.out.println("Nova melhor solução encontrada -> Peso: " + novoIndividuo.getPeso() +
+					System.out.println("* Nova melhor solução encontrada -> Peso: " + novoIndividuo.getPeso() +
 							" Peso antiga: " + melhorIndividuo.getPeso());
 				}
 				pop.remove(piorIndividuo);
@@ -350,6 +396,12 @@ class Main {
 		System.out.println("- Parametros utilizados nesta execução: Tamanho População: " + tamanhoPopulacao +
 				" Taxa de Mutação: " + taxaMutacao + " Condição de parada: " + condParada);
 		System.out.println("- Colunas Participantes da solução: " + pop.get(0).getColunas());
+		if(utilizarBuscaLocal) {
+			System.out.println("* A Busca Local estava ativada.");
+		}
+		else {
+			System.out.println("* A Busca Local estava desativada.");
+		}
 		System.out.println("- Nossa melhoria no algoritmo de eliminar redundancia ajudou a melhorar " + qtdNovidade + " individuos durante essa execução.");
 	}
 
