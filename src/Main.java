@@ -19,6 +19,7 @@ class Main {
 	private int qtdNovidade;
 	private int qtdBuscaLocal;
 	private boolean utilizarBuscaLocal;
+	Long tempoInicio = (long) 0;
 	ArrayList<DadosColunas> listDados = new ArrayList<>();
 	ArrayList<DadosLinhas> listLinhas = new ArrayList<>();
 	Random gerador = new Random();
@@ -50,6 +51,8 @@ class Main {
 		
 		System.out.println("-----------------------------------------------------------------");
 		
+		main.tempoInicio = System.currentTimeMillis();
+		
 		main.lerArquivo();
 		main.algoritmoGenetico();
 
@@ -58,7 +61,7 @@ class Main {
 	public void lerArquivo() {
 		BufferedReader br;
 		try {
-			FileReader ler = new FileReader("./src/entrada6.txt");
+			FileReader ler = new FileReader("./src/entrada.txt");
 			BufferedReader reader = new BufferedReader(ler);
 			String linha;
 			linha = reader.readLine();
@@ -367,7 +370,7 @@ class Main {
 				Individuo melhorIndividuo = pop.get(0);
 				if(novoIndividuo.getPeso() < melhorIndividuo.getPeso()){
 					System.out.println("* Nova melhor solução encontrada -> Peso: " + novoIndividuo.getPeso() +
-							" Peso antiga: " + melhorIndividuo.getPeso());
+							" Peso antigo: " + melhorIndividuo.getPeso());
 				}
 				pop.remove(piorIndividuo);
 				pop.add(novoIndividuo);
@@ -393,6 +396,7 @@ class Main {
 		System.out.println("-----------------------------------------------------------------");
 		System.out.println("O Algoritmo Genetico foi executado " + condParada + " vezes sem nenhuma melhora ...");
 		System.out.println("- Solução encontrada: " + pop.get(0).getPeso());
+		System.out.println("- Tempo de execução: " + ((System.currentTimeMillis()-tempoInicio) / 1000L) + "s");
 		System.out.println("- Parametros utilizados nesta execução: Tamanho População: " + tamanhoPopulacao +
 				" Taxa de Mutação: " + taxaMutacao + " Condição de parada: " + condParada);
 		System.out.println("- Colunas Participantes da solução: " + pop.get(0).getColunas());
