@@ -19,6 +19,7 @@ class Main {
 	private int qtdNovidade;
 	private int qtdBuscaLocal;
 	private boolean utilizarBuscaLocal;
+	private String caminhoArquivo;
 	Long tempoInicio = (long) 0;
 	ArrayList<DadosColunas> listDados = new ArrayList<>();
 	ArrayList<DadosLinhas> listLinhas = new ArrayList<>();
@@ -31,6 +32,8 @@ class Main {
 		System.out.println("-----------------------------------------------------------------");
 		System.out.println("Algoritmo Genético para o Problema de Cobertura de Conjuntos");
 		System.out.println("-----------------------------------------------------------------");
+		System.out.println("Informe o caminho do arquivo: ");
+		main.caminhoArquivo = leitor.nextLine();
 		System.out.print("Qual a quantidade de população desejada: ");
 		main.tamanhoPopulacao = leitor.nextInt();
 		System.out.print("Informe a taxa de mutação desejada em porcentagem (0 a 100): ");
@@ -61,7 +64,7 @@ class Main {
 	public void lerArquivo() {
 		BufferedReader br;
 		try {
-			FileReader ler = new FileReader("./src/entrada.txt");
+			FileReader ler = new FileReader(caminhoArquivo);
 			BufferedReader reader = new BufferedReader(ler);
 			String linha;
 			linha = reader.readLine();
@@ -112,7 +115,7 @@ class Main {
 			do {
 				linha = u.get(gerador.nextInt(numLinhas+1));
 			} while (linha == null);
-			double peso = 999;
+			double peso = 99999999;
 			DadosColunas selecionado = new DadosColunas();
 			for (DadosColunas dado : listLinhas.get(linha - 1).listaDados) {
 				int dividendo = verificaIntersecao(dado.getLinhasCobertas(), u);
